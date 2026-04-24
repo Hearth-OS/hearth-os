@@ -1,0 +1,6 @@
+version: "1"
+subgraphs:
+  - name: hearth-api
+    routing_url: "http://host.docker.internal:3001/graphql"
+    schema:
+      file: ./hearth-api.graphql

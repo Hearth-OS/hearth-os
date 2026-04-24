@@ -3,8 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "main": "src/index.ts",
-  "scripts": { "lint": "tsc --noEmit" },
+  "scripts": {
+    "migrate": "node --env-file=../../.env --require=tsx/cjs src/migrate.ts",
+    "migrate:ghost": "node --env-file=../../.env --require=tsx/cjs src/ghost-migrate.ts",
+    "seed": "node --env-file=../../.env --require=tsx/cjs src/seed.ts",
+    "seed:ghost": "node --env-file=../../.env --require=tsx/cjs src/ghost-seed.ts",
+    "test": "node --env-file=../../.env --require=tsx/cjs src/test.ts",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "postgres": "^3.4.4"
+  },
   "devDependencies": {
+    "tsx": "^4.7.0",
     "typescript": "^5",
     "@types/node": "^20"
   }

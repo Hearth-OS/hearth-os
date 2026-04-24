@@ -1,0 +1,74 @@
+type Property {
+  id: ID!
+  parcel_id: String
+  address: String!
+  neighborhood: String
+  lat: Float!
+  lng: Float!
+  property_type: String!
+  units: Int!
+  year_built: Int
+  maintenanceItems: [MaintenanceItem!]!
+}
+
+type MaintenanceItem {
+  id: ID!
+  property_id: String!
+  service: String!
+  predicted_date: String!
+  urgency: String!
+  estimated_cost_low: Float!
+  estimated_cost_high: Float!
+  market_rate_median: Float
+  shapley_discounted_rate: Float
+}
+
+type PricingRate {
+  service: String!
+  neighborhood: String!
+  price_low: Float!
+  price_high: Float!
+  price_median: Float!
+  source: String!
+}
+
+type Bundle {
+  service: String!
+  neighborhood: String!
+  property_count: Int!
+  cost_low: Float!
+  cost_high: Float!
+  shapley_discount: Float!
+}
+
+type GhostProperty {
+  id: ID!
+  address: String!
+  neighborhood: String!
+  lat: Float!
+  lng: Float!
+  property_type: String!
+  units: Int!
+  year_built: Int!
+  roof_age_years: Int!
+  hvac_age_years: Int!
+  last_permit_year: Int
+  recentEvents: [PropertyEvent!]!
+}
+
+type PropertyEvent {
+  time: String!
+  property_id: String!
+  asset_type: String!
+  event_type: String!
+  cost: Float
+}
+
+type Query {
+  properties: [Property!]!
+  property(id: ID!): Property
+  bundles(service: String, neighborhood: String): [Bundle!]!
+  pricing(service: String!, neighborhood: String!): [PricingRate!]!
+  ghostProperties: [GhostProperty!]!
+  ghostProperty(id: ID!): GhostProperty
+}

@@ -1,0 +1,24 @@
+version: "1"
+
+listen_addr: "0.0.0.0:4000"
+
+# Pre-composed supergraph config — offline mode, no Cosmo cloud needed
+router_config_path: "/etc/router/router-config.json"
+
+log_level: info
+
+# Disable cloud telemetry so the router runs fully offline
+telemetry:
+  tracing:
+    enabled: false
+    exporters: []
+  metrics:
+    otlp:
+      enabled: false
+      exporters: []
+    prometheus:
+      enabled: false
+
+# MCP server (satisfies WunderGraph MCP prize)
+mcp:
+  enabled: true
