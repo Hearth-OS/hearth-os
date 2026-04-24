@@ -1,16 +1,24 @@
 # @hearth-os/api — API Server (Person A)
 
-Express server backed by InsForge DB and WunderGraph.
+Express + GraphQL (Yoga) + Redis cache. InsForge Postgres + Ghost (Timescale) for data.
 
 ## Dev
 
 ```bash
-npm run dev   # http://localhost:3001
+# from repo root — needs .env with DATABASE_URL, GHOST_DATABASE_URL, REDIS_URL
+npm run dev   # workspace dev; http://localhost:3001
 ```
 
-## Key TODOs
+Restart the dev server after pulling so integration tests hit the latest routes.
 
-1. `npx @insforge/cli link --project-id <id>` from this directory
-2. Wire `@hearth-os/db` client into routes
-3. Add WunderGraph MCP endpoint from `@hearth-os/graph`
-4. Add Redis session middleware from redis package
+## Tests
+
+```bash
+npm test   # from repo root; API must be running on :3001 (see above)
+```
+
+## Endpoints (see `docs/integration.md`)
+
+- REST: `/health`, `/api/properties`, `/api/bundles/open`, `/api/pricing` (with `X-Cache-Key`)
+- Agent memory: `GET|PUT|DELETE /api/agent/sessions/:id`
+- GraphQL: `POST /graphql`

@@ -251,21 +251,69 @@ app.get("/api/bundles/open", async (req, res) => {
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 
+const PRICING_CACHE_TTL = 300;
+const AGENT_SESSION_TTL = 86_400; // 24h — demo agent + LangCache-style dedup share one Redis
+const SESSION_ID_RE = /^[a-zA-Z0-9_-]{1,64}$/;
+
 app.get("/api/pricing", async (req, res) => {
   const { service, neighborhood } = req.query as Record<string, string>;
   if (!service || !neighborhood) {
     return res.status(400).json({ error: "service and neighborhood are required" });
   }
+  const key = `pricing:${service}:${neighborhood}`;
   try {
-    const key = `pricing:${service}:${neighborhood}`;
+    res.setHeader("X-Cache-Key", key);
     const cached = await cacheGet(key);
     if (cached) { res.setHeader("X-Cache", "HIT"); return res.json(cached); }
     const rows = await sql`
       SELECT * FROM pricing_rates WHERE service = ${service} AND neighborhood = ${neighborhood}
     `;
-    await cacheSet(key, rows, 300);
+    await cacheSet(key, rows, PRICING_CACHE_TTL);
     res.setHeader("X-Cache", "MISS");
     res.json(rows);
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
+});
+
+// ── Agent memory (Redis) — homeowner / agent session blob for demo + tool continuity ──
+app.get("/api/agent/sessions/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!SESSION_ID_RE.test(id)) {
+      return res.status(400).json({ error: "invalid session id" });
+    }
+    const raw = await redis.get(`agent:session:${id}`);
+    if (raw == null) return res.json({ state: null });
+    res.json({ state: JSON.parse(raw) });
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
+});
+
+app.put("/api/agent/sessions/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!SESSION_ID_RE.test(id)) {
+      return res.status(400).json({ error: "invalid session id" });
+    }
+    const body = req.body;
+    if (body == null || typeof body !== "object" || Array.isArray(body)) {
+      return res.status(400).json({ error: "body must be a JSON object" });
+    }
+    const key = `agent:session:${id}`;
+    const existingRaw = await redis.get(key);
+    const existing = existingRaw ? (JSON.parse(existingRaw) as Record<string, unknown>) : {};
+    const merged = { ...existing, ...body, updatedAt: new Date().toISOString() };
+    await redis.setEx(key, AGENT_SESSION_TTL, JSON.stringify(merged));
+    res.json({ state: merged });
+  } catch (err: any) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete("/api/agent/sessions/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    if (!SESSION_ID_RE.test(id)) {
+      return res.status(400).json({ error: "invalid session id" });
+    }
+    await redis.del(`agent:session:${id}`);
+    res.status(204).end();
   } catch (err: any) { res.status(500).json({ error: err.message }); }
 });
 

@@ -26,7 +26,10 @@ Everything Person C needs is served from `http://localhost:3001`.
 | `GET /api/properties` | Array of 55 SF properties with `lat`, `lng`, `neighborhood`, `property_type`, `units` | Mapbox polygon layer — one pin/polygon per property |
 | `GET /api/properties/:id/timeline` | Array of maintenance items with `service`, `urgency` (`red`/`yellow`/`green`), `predicted_date`, `estimated_cost_low/high` | Single property drill-down view |
 | `GET /api/bundles/open?service=gutters` | Bundles with `property_count`, `shapley_discount`, `cost_low/high` | Bundle counter on map toggle |
-| `GET /api/pricing?service=hvac&neighborhood=Mission` | Market rate rows from B's scraper | "Verified by live pricing" line in demo |
+| `GET /api/pricing?service=hvac&neighborhood=Mission` | Market rate rows from B's scraper; response includes `X-Cache-Key: pricing:hvac:Mission` | "Verified by live pricing" + agent/LangCache dedup |
+| `GET /api/agent/sessions/:id` | `{ state: object \| null }` from Redis (24h TTL) | Agent / homeowner session continuity |
+| `PUT /api/agent/sessions/:id` | JSON body merged into `state` | Update agent context (e.g. last property, services of interest) |
+| `DELETE /api/agent/sessions/:id` | 204 | Clear session |
 | `POST /graphql` | Full GraphQL API | Agent / advanced queries |
 
 ### Shape of key responses

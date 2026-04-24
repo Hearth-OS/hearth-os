@@ -46,6 +46,11 @@ WunderGraph Cosmo **router** is not part of this image; it still runs as documen
 
 ```bash
 npm test       # @hearth-os/db + @hearth-os/api (requires .env and live services)
+```
+
+For **API** tests, run the server with current code, then in another shell `npm test` (or restart the API after `git pull` so port 3001 serves the new routes). Then:
+
+```bash
 npm run build
 ```
 
@@ -55,6 +60,8 @@ npm run build
 2. **API** on port **3001** (local or Docker) — CORS is open for browser calls from the Next dev server.
 3. **WunderGraph router** on **4000** (optional for REST-only UI; required for the federated GraphQL + agent path).
 4. **Web** on **3000** (calls `NEXT_PUBLIC_API_URL`).
+
+**Phase 7 (agent + pricing key):** `docs/phase7-cursor.md` — Redis agent sessions and `X-Cache-Key` on `/api/pricing`.
 
 ## Structure
 

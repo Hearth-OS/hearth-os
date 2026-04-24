@@ -1,11 +1,27 @@
-// Phase 2 tests — run with: node --env-file=../../.env --require=tsx/cjs src/test.ts
-// Requires the API server to be running on localhost:3001
+// API integration tests — run: node --env-file=../../.env --require=tsx/cjs src/test.ts
+// Requires the API on localhost:3001 with the same code (restart dev after changing routes)
 
 const BASE = "http://localhost:3001";
 
 async function get(path: string) {
   const res = await fetch(`${BASE}${path}`);
   return { status: res.status, headers: res.headers, body: await res.json() };
+}
+
+async function putJson(path: string, body: Record<string, unknown>) {
+  const res = await fetch(`${BASE}${path}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const text = await res.text();
+  let data: any = null;
+  try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+  return { status: res.status, headers: res.headers, body: data };
+}
+
+async function del(path: string) {
+  return fetch(`${BASE}${path}`, { method: "DELETE" });
 }
 
 async function gql(query: string, variables?: Record<string, unknown>) {
@@ -192,6 +208,39 @@ async function run() {
     );
     if (bad.length > 0) throw new Error(`${bad.length} properties outside SF bounds`);
     console.log(`     all ${data.data.ghostProperties.length} in SF bounds`);
+  });
+
+  console.log("\n── Phase 7: Agent memory + pricing cache key ──");
+
+  const demoSession = "demo-hackathon-01";
+
+  await check("PUT /api/agent/sessions writes Redis-backed agent state", async () => {
+    await del(`/api/agent/sessions/${demoSession}`);
+    const { status, body } = await putJson(`/api/agent/sessions/${demoSession}`, {
+      lastPropertyId: "prop-001",
+      interestedServices: ["gutters", "hvac"],
+    });
+    if (status !== 200 || !body?.state?.lastPropertyId) throw new Error(`bad response: ${JSON.stringify(body)}`);
+  });
+
+  await check("GET /api/agent/sessions returns merged state", async () => {
+    const { body } = await get(`/api/agent/sessions/${demoSession}`);
+    if (body.state?.lastPropertyId !== "prop-001") throw new Error("state not persisted");
+  });
+
+  await check("GET /api/pricing exposes X-Cache-Key (agent / LangCache dedup)", async () => {
+    const res = await fetch(
+      `${BASE}/api/pricing?service=hvac&neighborhood=Mission`
+    );
+    const key = res.headers.get("x-cache-key");
+    if (key !== "pricing:hvac:Mission") throw new Error(`X-Cache-Key was ${key}`);
+  });
+
+  await check("DELETE /api/agent/sessions clears state", async () => {
+    const d = await del(`/api/agent/sessions/${demoSession}`);
+    if (d.status !== 204) throw new Error(`status ${d.status}`);
+    const { body } = await get(`/api/agent/sessions/${demoSession}`);
+    if (body.state !== null) throw new Error("state should be null");
   });
 
   console.log(`\n${passed} passed, ${failed} failed\n`);
