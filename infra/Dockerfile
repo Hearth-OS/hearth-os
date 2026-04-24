@@ -1,5 +1,6 @@
 # Chainguard secure base (bounty) — dev image includes shell + toolchains for npm ci and tsx runtime
 FROM cgr.dev/chainguard/node:latest-dev AS deps
+USER root
 WORKDIR /app
 
 COPY package.json package-lock.json ./
@@ -10,16 +11,21 @@ COPY packages/graph/package.json ./packages/graph/
 COPY packages/scraper/package.json ./packages/scraper/
 COPY packages/pipeline/package.json ./packages/pipeline/
 
-# tsx (workspace devDep) is required to run the API without a separate tsc stage
+# Run as root so npm can create per-workspace node_modules (npm 9+)
 RUN npm ci
 
 FROM cgr.dev/chainguard/node:latest-dev AS runner
+USER root
 WORKDIR /app
 
-COPY --from=deps /app/node_modules ./node_modules
+# Full install tree (root + hoisted + nested workspace node_modules)
+COPY --from=deps /app/ /app/
+# Application source (host node_modules is dockerignored; does not clobber /app/node_modules)
 COPY . .
 
 ENV NODE_ENV=production
 EXPOSE 3001
 
+# Default nonroot user in Chainguard Node image
+USER node
 CMD ["node", "--require=tsx/cjs", "apps/api/src/index.ts"]

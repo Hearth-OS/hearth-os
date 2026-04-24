@@ -4,7 +4,7 @@ Phase 5 (Chainguard + runnable container) is implemented in `infra/Dockerfile` u
 
 ## Done in this phase
 
-- **Dockerfile** — `cgr.dev/chainguard/node:latest-dev`, `npm ci`, `CMD` runs `apps/api/src/index.ts` via `tsx/cjs`.
+- **Dockerfile** — `cgr.dev/chainguard/node:latest-dev`, `npm ci` as **root** (avoids EACCES when npm creates per-workspace `node_modules`), full tree copied to runner, `CMD` runs `apps/api/src/index.ts` via `tsx/cjs` as `USER node`.
 - **docker-compose** — API + Redis; `REDIS_URL` is forced to `redis://redis:6379` so the API uses the bundled Redis. `DATABASE_URL` and `GHOST_DATABASE_URL` come from `--env-file .env` (run from repo root).
 - **`.dockerignore`** — smaller/faster image builds; keeps secrets out via normal `.env` gitignore.
 - **README** — Docker commands, `npm test` / `npm run build`, demo order (DB → API :3001 → router :4000 → web :3000).

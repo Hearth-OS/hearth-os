@@ -160,13 +160,14 @@ function toPricingRate(candidate: unknown, target: ScrapeTarget): PricingRate | 
   const source = toStringValue(candidate.source) || target.source;
 
   return {
+    id: `scrape-${target.service}-${neighborhood}-${source}`.replace(/\s/g, "-"),
     service: target.service,
     neighborhood,
-    priceLow,
-    priceHigh,
-    priceMedian,
+    price_low: priceLow,
+    price_high: priceHigh,
+    price_median: priceMedian,
     source,
-    scrapedAt: new Date().toISOString(),
+    scraped_at: new Date().toISOString(),
   };
 }
 
@@ -187,13 +188,14 @@ function syntheticRate(service: ServiceCategory, neighborhood: string): PricingR
   };
   const [low, high] = base[service];
   return {
+    id: `synthetic-${service}-${neighborhood}`,
     service,
     neighborhood,
-    priceLow: low,
-    priceHigh: high,
-    priceMedian: Math.round((low + high) / 2),
+    price_low: low,
+    price_high: high,
+    price_median: Math.round((low + high) / 2),
     source: "synthetic-fallback",
-    scrapedAt: new Date().toISOString(),
+    scraped_at: new Date().toISOString(),
   };
 }
 
