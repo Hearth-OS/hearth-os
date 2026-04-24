@@ -5,10 +5,12 @@ Scrapes contractor pricing from Thumbtack, Angi, Yelp for SF.
 ## Run
 
 ```bash
-npm install -g @tiny-fish/cli
-tinyfish auth login
+export TINYFISH_API_KEY=sk-tinyfish-...
+npm install
 npm run scrape
 ```
+
+The scraper now calls the TinyFish Agent API directly. If `TINYFISH_API_KEY` is missing or TinyFish does not return usable rows, it falls back to the synthetic neighborhood dataset so the rest of the pipeline still runs.
 
 ## Output shape
 

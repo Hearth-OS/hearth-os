@@ -18,6 +18,8 @@ npm install
 npm run dev
 ```
 
+For live contractor pricing, set `TINYFISH_API_KEY` in your shell or local env file, then run `npm run scrape`. To feed the results into Nexla Express, also set `NEXLA_WEBHOOK_URL` and `NEXLA_API_KEY`, then run `npm run pipeline`.
+
 ## Structure
 
 ```
