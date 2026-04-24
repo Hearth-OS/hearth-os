@@ -1,0 +1,19 @@
+{
+  "name": "@hearth-os/pipeline",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.ts",
+  "scripts": {
+    "run-pipeline": "tsx src/index.ts",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hearth-os/scraper": "*",
+    "@hearth-os/db": "*"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "tsx": "^4.7.0"
+  }
+}

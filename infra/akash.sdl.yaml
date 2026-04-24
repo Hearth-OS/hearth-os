@@ -1,0 +1,34 @@
+version: "2.0"
+services:
+  api:
+    image: ghcr.io/hearth-os/api:latest
+    expose:
+      - port: 3001
+        as: 80
+        to:
+          - global: true
+    env:
+      - DATABASE_URL=$DATABASE_URL
+      - WUNDERGRAPH_API_URL=$WUNDERGRAPH_API_URL
+      - REDIS_URL=$REDIS_URL
+profiles:
+  compute:
+    api:
+      resources:
+        cpu:
+          units: 0.5
+        memory:
+          size: 512Mi
+        storage:
+          size: 1Gi
+  placement:
+    westcoast:
+      pricing:
+        api:
+          denom: uakt
+          amount: 1000
+deployment:
+  api:
+    westcoast:
+      profile: api
+      count: 1
