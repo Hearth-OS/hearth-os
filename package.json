@@ -14,6 +14,7 @@
     "test:db": "npm --workspace @hearth-os/db run test",
     "test:api": "npm --workspace @hearth-os/api run test",
     "lint": "turbo run lint",
+    "verify:build": "npm run lint && npm run build",
     "clean": "turbo run clean",
     "scrape": "npm --workspace @hearth-os/scraper run scrape",
     "pipeline": "npm --workspace @hearth-os/pipeline run run-pipeline"

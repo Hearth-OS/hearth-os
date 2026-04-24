@@ -44,6 +44,8 @@ WunderGraph Cosmo **router** is not part of this image; it still runs as documen
 
 ## Check quality
 
+**Fast (CI-style, no live DB):** `npm run verify:build` or `scripts/verify-build.cmd` (Windows) / `scripts/verify-build.sh` (Git Bash, macOS, Linux) / `pwsh -File scripts/verify-build.ps1`.
+
 ```bash
 npm test       # @hearth-os/db + @hearth-os/api (requires .env and live services)
 ```
