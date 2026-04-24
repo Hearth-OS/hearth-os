@@ -16,3 +16,5 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm run build
+      # npm test is not run here: integration tests need DATABASE_URL, GHOST_DATABASE_URL,
+      # Redis, and often the WunderGraph router — run `npm test` locally (see README).
