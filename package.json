@@ -2,6 +2,7 @@
   "name": "hearth-os",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "npm@11.12.1",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -9,6 +10,9 @@
   "scripts": {
     "dev": "turbo run dev",
     "build": "turbo run build",
+    "test": "npm run test:db && npm run test:api",
+    "test:db": "npm --workspace @hearth-os/db run test",
+    "test:api": "npm --workspace @hearth-os/api run test",
     "lint": "turbo run lint",
     "clean": "turbo run clean",
     "scrape": "npm --workspace @hearth-os/scraper run scrape",
