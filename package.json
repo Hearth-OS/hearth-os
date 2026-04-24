@@ -10,7 +10,9 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "clean": "turbo run clean"
+    "clean": "turbo run clean",
+    "scrape": "npm --workspace @hearth-os/scraper run scrape",
+    "pipeline": "npm --workspace @hearth-os/pipeline run run-pipeline"
   },
   "devDependencies": {
     "turbo": "^2.0.0"
